@@ -6,44 +6,14 @@
 //
 
 import Foundation
-import CLISpinner
-
-let fileManager = FileManager.default
-
-extension Array {
-    var second: Element? {
-        guard count > 1 else { return nil }
-        return self[1]
-    }
-}
 
 let givenPath = CommandLine.arguments.second ?? fileManager.currentDirectoryPath
 
 let resolvedPath = URL(fileURLWithPath: givenPath).path
 
-func startMainLoop(path: String) throws {
-    
-    while true {
-        let semaphore = DispatchSemaphore(value: 0)
-        let queue = DispatchQueue(label: "yeah", qos: DispatchQoS.background, attributes: [.concurrent])
-        
-        let watcher = try Watcher(path: resolvedPath, queue: queue, interval: 0.2)
-        
-        let spinner = Spinner(pattern: .dots, text: "Observing for changes in \(resolvedPath) (Press ^C to cancel)")
-        spinner.start()
-        
-        try watcher.start(closure: {
-            spinner.stop(text: "Changed!")
-            watcher.stop()
-            semaphore.signal()
-        })
-        semaphore.wait()
-    }
-    
-}
-
 do {
-    try startMainLoop(path: resolvedPath)
+    let loop = MainLoop(path: resolvedPath)
+    try loop.start()
 } catch {
     print("ERROR: \(error)")
 }

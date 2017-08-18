@@ -99,24 +99,3 @@ class Watcher {
     }
     
 }
-
-private func runShell(_ script: String) -> (out: String?, err: String?) {
-    let out = Pipe()
-    let err = Pipe()
-    
-    let process = Process()
-    process.launchPath = "/usr/bin/env"
-    process.arguments = ["zsh", "-c", script]
-    process.standardOutput = out
-    process.standardError = err
-    
-    process.launch()
-    process.waitUntilExit()
-    
-    let outData = out.fileHandleForReading.readDataToEndOfFile()
-    let outString = String(data: outData, encoding: .utf8)
-    
-    let errData = out.fileHandleForReading.readDataToEndOfFile()
-    let errString = String(data: errData, encoding: .utf8)
-    return (outString, errString)
-}
