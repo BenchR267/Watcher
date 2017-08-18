@@ -7,22 +7,14 @@
 
 import Foundation
 
-public let fileManager = FileManager.default
+let fileManager = FileManager.default
 
-public enum State {
+enum State {
     case started(UpdateClosure)
     case stopped
 }
 
-public typealias UpdateClosure = () -> Void
-
-protocol WatcherProtocol {
-    var state: State { get }
-    
-    init(path: String, queue: DispatchQueue, interval: TimeInterval) throws
-    func start(closure: @escaping UpdateClosure) throws
-    func stop()
-}
+typealias UpdateClosure = () -> Void
 
 extension FileManager {
     func isDirectory(path: String) -> Bool {
@@ -32,22 +24,25 @@ extension FileManager {
     }
 }
 
-public class Watcher: WatcherProtocol {
+class Watcher {
     
-    public enum Error: Swift.Error {
+    enum Error: Swift.Error {
         case notADirectory(path: String)
         case alreadyStarted(path: String)
     }
     
-    public var state = State.stopped
+    var state = State.stopped
     
-    public let path: String
+    let path: String
     private let queue: DispatchQueue
     private let interval: Int
     
     private var hash: String?
+    private var timer: DispatchSourceTimer?
     
-    public required init(path: String = fileManager.currentDirectoryPath, queue: DispatchQueue, interval: TimeInterval = 2) throws {
+    // MARK: - API
+    
+    required init(path: String = fileManager.currentDirectoryPath, queue: DispatchQueue, interval: TimeInterval = 2) throws {
         guard fileManager.isDirectory(path: path) else {
             throw Error.notADirectory(path: path)
         }
@@ -56,9 +51,11 @@ public class Watcher: WatcherProtocol {
         self.interval = Int(interval * 1000)
     }
     
-    private var timer: DispatchSourceTimer?
+    deinit {
+        self.stop()
+    }
     
-    public func start(closure: @escaping UpdateClosure) throws {
+    func start(closure: @escaping UpdateClosure) throws {
         guard case .stopped =  self.state else {
             throw Error.alreadyStarted(path: self.path)
         }
@@ -71,21 +68,23 @@ public class Watcher: WatcherProtocol {
         timer.resume()
         self.timer = timer
     }
+
+    public func stop() {
+        self.timer?.cancel()
+    }
+
+    // MARK: - Helpers
     
-    func timerFired() {
+    private func timerFired() {
         guard case let .started(closure) = self.state else {
             self.timer?.cancel()
             return
         }
         let newHash = self.calculateHash()
-        if newHash != self.hash {
-            closure()
+        if let savedHash = self.hash, savedHash != newHash {
+            self.queue.sync(execute: closure)
         }
         self.hash = newHash
-    }
-    
-    public func stop() {
-        self.timer?.cancel()
     }
     
     private func calculateHash() -> String {

@@ -6,17 +6,14 @@ import PackageDescription
 let package = Package(
     name: "Watcher",
     dependencies: [
-//        .package(url: "https://github.com/krzysztofzablocki/KZFileWatchers.git", from: "1.0.3"),
+        .package(url: "https://github.com/kiliankoe/CLISpinner", from: "0.3.4")
     ],
     targets: [
         .target(
-            name: "WatcherExecutable",
-            dependencies: ["FileWatcher"]),
-        .target(
-            name: "FileWatcher",
-            dependencies: []),
+            name: "Watcher",
+            dependencies: ["CLISpinner"]),
         .testTarget(
             name: "WatcherTests",
-            dependencies: ["FileWatcher"]),
+            dependencies: ["Watcher"]),
     ]
 )
