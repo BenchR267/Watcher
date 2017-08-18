@@ -7,8 +7,6 @@
 
 import Foundation
 
-let fileManager = FileManager.default
-
 enum State {
     case started(UpdateClosure)
     case stopped
@@ -26,9 +24,18 @@ extension FileManager {
 
 class Watcher {
     
-    enum Error: Swift.Error {
+    enum Error: Swift.Error, CustomStringConvertible {
         case notADirectory(path: String)
         case alreadyStarted(path: String)
+        
+        var description: String {
+            switch self {
+            case let .notADirectory(path):
+                return "The given path is not a directory. (\(path))"
+            case let .alreadyStarted(path):
+                return "The Watcher instance is already running \(path). This is an internal error, please submit a bug report at https://github.com/BenchR267/Watcher. Thanks!"
+            }
+        }
     }
     
     var state = State.stopped

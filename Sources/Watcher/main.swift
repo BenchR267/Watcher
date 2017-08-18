@@ -6,8 +6,9 @@
 //
 
 import Foundation
-import FileWatcher
 import CLISpinner
+
+let fileManager = FileManager.default
 
 extension Array {
     var second: Element? {
@@ -20,7 +21,6 @@ let givenPath = CommandLine.arguments.second ?? fileManager.currentDirectoryPath
 
 let resolvedPath = URL(fileURLWithPath: givenPath).path
 
-
 func startMainLoop(path: String) throws {
     
     while true {
@@ -29,7 +29,7 @@ func startMainLoop(path: String) throws {
         
         let watcher = try Watcher(path: resolvedPath, queue: queue, interval: 0.2)
         
-        let spinner = Spinner(pattern: .dots, text: "Start observing in \(resolvedPath) (Press ^C to cancel)")
+        let spinner = Spinner(pattern: .dots, text: "Observing for changes in \(resolvedPath) (Press ^C to cancel)")
         spinner.start()
         
         try watcher.start(closure: {
