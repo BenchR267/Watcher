@@ -25,7 +25,7 @@ class TestRunner: NSObject {
     
     func startTest() {
         self.running = true
-        let res = runShell("swift test --package-path \(path) --parallel")
+        let res = runShell("swift build --build-tests && swift test --skip-build --package-path \(path)")
         let status = res.code
         status > 0 ? self.delegate?.testsFailed() : self.delegate?.testsSuccessful()
         self.running = false
