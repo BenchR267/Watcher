@@ -1,5 +1,5 @@
 //
-//  Watcher.swift
+//  FileWatcher.swift
 //  Watcher
 //
 //  Created by Benjamin Herzog on 18.08.17.
@@ -22,7 +22,7 @@ extension FileManager {
     }
 }
 
-class Watcher {
+class FileWatcher {
     
     enum Error: Swift.Error, CustomStringConvertible {
         case notADirectory(path: String)
@@ -33,7 +33,7 @@ class Watcher {
             case let .notADirectory(path):
                 return "The given path is not a directory. (\(path))"
             case let .alreadyStarted(path):
-                return "The Watcher instance is already running \(path). This is an internal error, please submit a bug report at https://github.com/BenchR267/Watcher. Thanks!"
+                return "The FileWatcher instance is already running \(path). This is an internal error, please submit a bug report at https://github.com/BenchR267/Watcher. Thanks!"
             }
         }
     }

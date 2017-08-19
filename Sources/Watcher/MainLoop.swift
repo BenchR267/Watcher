@@ -25,7 +25,7 @@ class MainLoop {
             let semaphore = DispatchSemaphore(value: 0)
             let queue = DispatchQueue(label: "yeah", qos: DispatchQoS.background, attributes: [.concurrent])
             
-            let watcher = try Watcher(path: resolvedPath, queue: queue, interval: 0.2)
+            let watcher = try FileWatcher(path: resolvedPath, queue: queue, interval: 0.2)
             
             self.resetSpinner()
             
